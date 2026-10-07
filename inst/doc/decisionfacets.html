@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 0.11">
+<title>Would this candidate have passed with different raters?</title>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+body, .abstract, code, .footnotes, footer, #refs, .caption { font-size: .9em; }
+li li { font-size: .95em; }
+ul:has(li > input[type="checkbox"]) { list-style: none; padding-left: 1em; }
+*, :before, :after { box-sizing: border-box; }
+a { color: steelblue; }
+pre, img { max-width: 100%; }
+pre { white-space: pre-wrap; word-break: break-word; }
+pre code { display: block; padding: 1em; overflow-x: auto; }
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre, th) > code, code[class], div > .caption { background: #f8f8f8; }
+pre > code:is(:not([class]), .language-plain, .language-none, .plain), .box, .figure, .table { background: inherit; border: 1px solid #eee; }
+pre > code {
+  &.message { border-color: #9eeaf9; }
+  &.warning { background: #fff3cd; border-color: #fff3cd; }
+  &.error { background: #f8d7da; border-color: #f8d7da; }
+}
+.fenced-chunk { border-left: 1px solid #666; }
+.code-fence {
+  opacity: .4;
+  border: 1px dashed #666;
+  border-left: 2px solid;
+  &:hover { opacity: inherit; }
+}
+.box, .figure, .table, table { margin: 1em auto; }
+div > .caption { padding: 1px 1em; }
+.figure { p:has(img, svg), pre:has(svg) { text-align: center; } }
+.flex-col { display: flex; justify-content: space-between; }
+table {
+  &:only-child:not(.table > *) { margin: auto; }
+  th, td { padding: 5px; font-variant-numeric: tabular-nums; }
+  &:not([class]) {
+    thead, tfoot, tr:nth-child(even) { background: whitesmoke; }
+    thead th { border-bottom: 1px solid #ddd; }
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+  }
+}
+blockquote {
+  color: #666;
+  margin: 0;
+  padding: 1px 1em;
+  border-left: .5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC {
+  a { text-decoration: none; }
+  ul { list-style: none; padding-left: 1em; columns: 24em; }
+  & > ul { padding: 0; }
+  ul ul { border-left: 1px solid lightsteelblue; }
+}
+.body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.main-number::after { content: "."; }
+span[class^="ref-number-"] { font-weight: bold; }
+.ref-number-fig::after, .ref-number-tab::after { content: ":"; }
+.cross-ref-chp::before { content: "Chapter "; }
+.cross-ref-sec::before { content: "Section "; }
+.cross-ref-apd::before { content: "Appendix "; }
+.cross-ref-fig::before, .ref-number-fig::before { content: "Figure "; }
+.cross-ref-tab::before, .ref-number-tab::before { content: "Table "; }
+.cross-ref-eqn::before, .MathJax_ref:has(mjx-mtext > mjx-c + mjx-c)::before { content: "Equation "; }
+.abstract, #refs {
+  &::before { display: block; margin: 1em auto; font-weight: bold; }
+}
+.abstract::before { content: "Abstract"; text-align: center; }
+#refs::before { content: "Bibliography"; font-size: 1.5em; }
+.ref-paren-open::before { content: "("; }
+.ref-paren-close::after { content: ")"; }
+.ref-semicolon::after { content: "; "; }
+.ref-and::after { content: " and "; }
+.ref-et-al::after { content: " et al."; font-style: italic; }
+.footnote-ref a {
+  &::before { content: "["; }
+  &::after { content: "]"; }
+}
+section.footnotes {
+  margin-top: 2em;
+  &::before { content: ""; display: block; max-width: 20em; }
+}
+.fade {
+  background: repeating-linear-gradient(135deg, white, white 30px, #ddd 32px, #ddd 32px);
+  opacity: 0.6;
+}
+@media (prefers-color-scheme: dark) {
+  html, img, video, iframe { filter: invert(1); }
+  body { background: #ededed; }
+}
+@media print {
+  body { max-width: 100%; }
+  tr, img { break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
+}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.73/css/prism-xcode.min.css">
+</head>
+<body>
+<div class="frontmatter">
+<div class="title"><h1>Would this candidate have passed with different raters?</h1></div>
+</div>
+<div class="body">
+<p>Boards that run oral exams, OSCEs or essay-scored certifications must defend
+individual pass/fail decisions. Rater severity is well studied; what it <em>did</em>
+to decisions usually is not. decisionfacets answers that question directly.</p>
+<h2 id="sec:a-simulated-administration">A simulated administration</h2>
+<p>Every candidate is scored on four tasks by two raters drawn from a pool of
+twelve whose severities differ. Because the data are simulated, the true
+abilities and severities are known.</p>
+<pre><code class="language-r">library(decisionfacets)
+sim &lt;- df_simulate(n_persons = 400, n_items = 4, n_raters = 12,
+                   raters_per_person = 2, severity_sd = 0.6, seed = 2026)
+head(sim$data)
+#&gt;   person item rater score
+#&gt; 1  P0001  I01   R07     4
+#&gt; 2  P0001  I02   R07     1
+#&gt; 3  P0001  I03   R07     2
+#&gt; 4  P0001  I04   R07     3
+#&gt; 5  P0001  I01   R04     1
+#&gt; 6  P0001  I02   R04     2
+round(sim$par$lambda, 2)   # true rater severities (positive = harsher)
+#&gt;   R01   R02   R03   R04   R05   R06   R07   R08   R09   R10   R11   R12 
+#&gt; -0.57 -1.22  1.13  0.92  0.06 -0.87  0.29 -0.61  0.34  0.50  0.09 -0.06
+</code></pre>
+<h2 id="sec:fit-the-many-facet-rasch-model">Fit the many-facet Rasch model</h2>
+<p><code>df_fit()</code> uses ‘TAM’ when it is installed and a built-in joint maximum
+likelihood estimator otherwise. We use the built-in one here so the vignette
+has no dependencies.</p>
+<pre><code class="language-r">fit &lt;- df_fit(sim$data, engine = &quot;jmle&quot;)
+df_rater_effects(fit)
+#&gt;    rater    severity
+#&gt; 1    R01 -0.84684003
+#&gt; 2    R02 -1.39671568
+#&gt; 3    R03  1.47469290
+#&gt; 4    R04  1.17825056
+#&gt; 5    R05  0.13005088
+#&gt; 6    R06 -0.82904465
+#&gt; 7    R07  0.30772424
+#&gt; 8    R08 -0.81637738
+#&gt; 9    R09  0.55252850
+#&gt; 10   R10  0.61777896
+#&gt; 11   R11 -0.01314208
+#&gt; 12   R12 -0.35890621
+</code></pre>
+<h2 id="sec:the-decision-rule-is-the-point">The decision rule is the point</h2>
+<p>The same substantive standard (an average rating of 2 per cell) can be applied
+to raw totals or to severity-adjusted measures. Rater severity reaches the
+decision only in the first case.</p>
+<pre><code class="language-r">raw &lt;- df_cut(2 * 4 * 2, &quot;raw_total&quot;)
+fa  &lt;- df_cut(2, &quot;fair_average&quot;)
+</code></pre>
+<h2 id="sec:counterfactual-pass-probabilities">Counterfactual pass probabilities</h2>
+<p>For each candidate, <code>df_counterfactual()</code> gives the probability of passing a
+re-rating by the observed panel, by an average-severity panel and by a random
+panel from the pool. <code>advantage</code> is how far the assigned panel pushed the
+candidate toward the outcome they received.</p>
+<pre><code class="language-r">cf_raw &lt;- df_counterfactual(fit, raw)
+cf_raw
+#&gt; &lt;df_counterfactual&gt; rule = raw_total | cut = 16 | theta = posterior | 66 panels (all) 
+#&gt; 88 of 400 candidates flagged as rater-dependent
+#&gt; 
+#&gt;  person   panel total raw_cut pass_observed p_observed p_average p_random
+#&gt;   P0151 R03|R04    13      16         FALSE     0.1874    0.9253    0.844
+#&gt;   P0059 R03|R04    11      16         FALSE     0.0737    0.8044    0.729
+#&gt;   P0310 R03|R04    11      16         FALSE     0.0737    0.8044    0.729
+#&gt;   P0160 R03|R04    10      16         FALSE     0.0414    0.7110    0.656
+#&gt;   P0003 R01|R02    19      16          TRUE     0.8725    0.1980    0.285
+#&gt;   P0394 R03|R04    15      16         FALSE     0.3680    0.9777    0.920
+#&gt;   P0281 R03|R09    12      16         FALSE     0.1305    0.7363    0.674
+#&gt;   P0236 R03|R10    11      16         FALSE     0.0790    0.6529    0.613
+#&gt;   P0110 R02|R06    16      16          TRUE     0.6250    0.0487    0.127
+#&gt;   P0129 R04|R10    12      16         FALSE     0.1357    0.6806    0.633
+#&gt;     p_min p_max  delta advantage rater_dependent          direction
+#&gt;  1.87e-01 1.000 -0.657     0.657            TRUE   harsh_panel_fail
+#&gt;  7.37e-02 0.997 -0.655     0.655            TRUE   harsh_panel_fail
+#&gt;  7.37e-02 0.997 -0.655     0.655            TRUE   harsh_panel_fail
+#&gt;  4.14e-02 0.993 -0.615     0.615            TRUE   harsh_panel_fail
+#&gt;  8.39e-04 0.872  0.588     0.588            TRUE lenient_panel_pass
+#&gt;  3.68e-01 1.000 -0.552     0.552            TRUE   harsh_panel_fail
+#&gt;  4.60e-02 0.995 -0.544     0.544            TRUE   harsh_panel_fail
+#&gt;  2.79e-02 0.990 -0.534     0.534            TRUE   harsh_panel_fail
+#&gt;  3.73e-05 0.631  0.498     0.498            TRUE lenient_panel_pass
+#&gt;  3.18e-02 0.992 -0.497     0.497            TRUE   harsh_panel_fail
+summary(cf_raw)
+#&gt;   decision_rule cut   n pass_rate_observed expected_pass_rate_random_panel
+#&gt; 1     raw_total  16 400                0.5                        0.527847
+#&gt;   mean_abs_delta n_rater_dependent n_lenient_panel_pass n_harsh_panel_fail
+#&gt; 1       0.142495                88                   35                 53
+#&gt;   n_panel_sensitive
+#&gt; 1               288
+summary(df_counterfactual(fit, fa))
+#&gt;   decision_rule cut   n pass_rate_observed expected_pass_rate_random_panel
+#&gt; 1  fair_average   2 400              0.505                       0.5035176
+#&gt;   mean_abs_delta n_rater_dependent n_lenient_panel_pass n_harsh_panel_fail
+#&gt; 1      0.0133384                 0                    0                  0
+#&gt;   n_panel_sensitive
+#&gt; 1                 0
+</code></pre>
+<p>Under raw totals, a sizable share of candidates are rater-dependent; under the
+fair average, essentially none are.</p>
+<h2 id="sec:where-do-wrong-decisions-come-from">Where do wrong decisions come from?</h2>
+<pre><code class="language-r">df_attribute(cf_raw)
+#&gt; &lt;df_attribution&gt; rule = raw_total | cut = 16 | standard at theta = 0.03 | n = 400 
+#&gt; 
+#&gt;  component                                        expected_count per_1000
+#&gt;  expected misclassifications (observed panels)    67.5           168.7   
+#&gt;    measurement error (average panel)              40.4           101.0   
+#&gt;    rater assignment, net (observed - average)     27.1            67.7   
+#&gt;      gross harm (panels that added error)         31.4            78.5   
+#&gt;      gross benefit (panels that removed error)    -4.3           -10.8   
+#&gt;    of which false passes                          36.0            89.9   
+#&gt;    of which false fails                           31.5            78.8   
+#&gt;  random-assignment design cost (random - average) 26.7            66.8
+</code></pre>
+<p>The decomposition separates error that no rater could remove (measurement)
+from error added by the particular raters assigned, and from the expected cost
+of random assignment.</p>
+<h2 id="sec:checking-against-the-truth">Checking against the truth</h2>
+<p>With the true parameters the same analysis gives the known answer, so the
+estimates can be compared with it:</p>
+<pre><code class="language-r">truth &lt;- df_counterfactual(sim, raw)
+cor(truth$advantage, cf_raw$advantage)
+#&gt; [1] 0.8805454
+table(truth = truth$rater_dependent, estimated = cf_raw$rater_dependent)
+#&gt;        estimated
+#&gt; truth   FALSE TRUE
+#&gt;   FALSE   290   20
+#&gt;   TRUE     22   68
+</code></pre>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+</body>
+</html>
