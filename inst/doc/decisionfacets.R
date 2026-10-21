@@ -30,3 +30,23 @@ truth <- df_counterfactual(sim, raw)
 cor(truth$advantage, cf_raw$advantage)
 table(truth = truth$rater_dependent, estimated = cf_raw$rater_dependent)
 
+## -----------------------------------------------------------------------------
+head(oral_exam)
+d <- df_data(oral_exam, person = "candidate", item = "case",
+             rater = "examiner", scale = "continuous")
+
+## -----------------------------------------------------------------------------
+ofit <- df_fit(d)
+round(ofit$par$sigma, 1)                # residual SD (score points)
+head(df_rater_effects(ofit))
+range(round(ofit$par$lambda, 1))        # most lenient and harshest examiners
+
+## -----------------------------------------------------------------------------
+cut70 <- df_cut(70, "raw_mean")
+cf_oral <- df_counterfactual(ofit, cut70, max_panels = 500, seed = 1)
+summary(cf_oral)
+df_attribute(cf_oral)
+
+## -----------------------------------------------------------------------------
+summary(df_counterfactual(ofit, df_cut(70, "measure"), max_panels = 500, seed = 1))
+

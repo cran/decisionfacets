@@ -245,6 +245,83 @@ table(truth = truth$rater_dependent, estimated = cf_raw$rater_dependent)
 #&gt;   FALSE   290   20
 #&gt;   TRUE     22   68
 </code></pre>
+<h2 id="sec:oral-examinations-one-examiner-per-case-scores-0-100">Oral examinations: one examiner per case, scores 0-100</h2>
+<p>Many oral certification exams do not use panels. Each candidate works
+through a series of cases, and each case is scored by a different examiner on
+a 0-100 scale. decisionfacets handles this design and these scores directly.</p>
+<p><code>oral_exam</code> is a synthetic example: 300 candidates each take 12 cases, and
+each case is scored by one of 8 examiners qualified for it (48 examiners in
+all), never the same examiner twice for one candidate.</p>
+<pre><code class="language-r">head(oral_exam)
+#&gt;   candidate   case examiner score
+#&gt; 1     C0001 Case01      E09    58
+#&gt; 2     C0001 Case02      E04    56
+#&gt; 3     C0001 Case03      E44    56
+#&gt; 4     C0001 Case04      E29    68
+#&gt; 5     C0001 Case05      E45    58
+#&gt; 6     C0001 Case06      E03    67
+d &lt;- df_data(oral_exam, person = &quot;candidate&quot;, item = &quot;case&quot;,
+             rater = &quot;examiner&quot;, scale = &quot;continuous&quot;)
+</code></pre>
+<p>Continuous scores are fitted with a linear many-facet model,
+<code>score = ability - case difficulty - examiner severity + error</code>. Measures,
+difficulties and severities are all in score points, so a severity of 3 means
+that examiner scores about 3 points lower than an average examiner would.</p>
+<pre><code class="language-r">ofit &lt;- df_fit(d)
+round(ofit$par$sigma, 1)                # residual SD (score points)
+#&gt; [1] 7.9
+head(df_rater_effects(ofit))
+#&gt;   rater   severity
+#&gt; 1   E01 -2.0756067
+#&gt; 2   E02 -3.2289985
+#&gt; 3   E03 -3.8700384
+#&gt; 4   E04  1.0323901
+#&gt; 5   E05  2.9004364
+#&gt; 6   E06 -0.8947828
+range(round(ofit$par$lambda, 1))        # most lenient and harshest examiners
+#&gt; [1] -11.9   9.9
+</code></pre>
+<p>The natural standard is a mean score, for example 70. The counterfactual
+reassigns examiners case by case: each draw gives every case an examiner
+qualified for it.</p>
+<pre><code class="language-r">cut70 &lt;- df_cut(70, &quot;raw_mean&quot;)
+cf_oral &lt;- df_counterfactual(ofit, cut70, max_panels = 500, seed = 1)
+summary(cf_oral)
+#&gt;   decision_rule cut   n pass_rate_observed expected_pass_rate_random_panel
+#&gt; 1      raw_mean  70 300               0.65                       0.6319092
+#&gt;   mean_abs_delta n_rater_dependent n_lenient_panel_pass n_harsh_panel_fail
+#&gt; 1     0.04796453                13                    7                  6
+#&gt;   n_panel_sensitive
+#&gt; 1                93
+df_attribute(cf_oral)
+#&gt; &lt;df_attribution&gt; rule = raw_mean | cut = 70 | standard at theta = 70 | n = 300 
+#&gt; 
+#&gt;  component                                        expected_count per_1000
+#&gt;  expected misclassifications (observed panels)    31.0           103.2   
+#&gt;    measurement error (average panel)              27.4            91.4   
+#&gt;    rater assignment, net (observed - average)      3.5            11.8   
+#&gt;      gross harm (panels that added error)          5.6            18.8   
+#&gt;      gross benefit (panels that removed error)    -2.1            -7.0   
+#&gt;    of which false passes                          14.1            46.9   
+#&gt;    of which false fails                           16.9            56.3   
+#&gt;  random-assignment design cost (random - average)  3.1            10.2
+</code></pre>
+<p>With twelve different examiners per candidate, severity largely averages
+out, so examiner assignment usually accounts for a smaller share of wrong
+decisions than with two-rater panels. Scoring with severity-adjusted
+measures removes it altogether:</p>
+<pre><code class="language-r">summary(df_counterfactual(ofit, df_cut(70, &quot;measure&quot;), max_panels = 500, seed = 1))
+#&gt;   decision_rule cut   n pass_rate_observed expected_pass_rate_random_panel
+#&gt; 1       measure  70 300               0.64                       0.6324932
+#&gt;   mean_abs_delta n_rater_dependent n_lenient_panel_pass n_harsh_panel_fail
+#&gt; 1   3.053113e-18                 0                    0                  0
+#&gt;   n_panel_sensitive
+#&gt; 1                 0
+</code></pre>
+<p><code>df_fit()</code> also checks that the rating network is connected. If some
+examiners never share candidates or cases with the rest, their severities
+cannot be compared, and <code>df_fit()</code> stops with an explanation instead of
+returning misleading estimates.</p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
